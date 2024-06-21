@@ -1,509 +1,107 @@
-library(haven)
-library(dplyr)
-library(tidyr)
+#install library 
+library(readxl)
+Survey_2309 <- read_excel("C:/Users/Admin/Desktop/Survey 2309.xlsx",
+col_types = c("text", "numeric", "text",
+"text", "numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"text", "text", "text", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "text", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "text", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "text", "text",
+"numeric", "numeric", "text"))
+View(Survey_2309)
+library(readxl)
+Survey_2309 <- read_excel("C:/Users/Admin/Desktop/Survey 2309.xlsx",
+col_types = c("text", "numeric", "text",
+"text", "numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"text", "text", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "text", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "text", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "text", "text", "numeric",
+"numeric", "text"))
+View(Survey_2309)
+summarize(age, gender)
+summary(age, gender)
+View(Survey_2309)
+summary(Survey_2309)
+install packages("factoextra")
+install.packages("foreign")
+install.packages("psych")
+library(GPArotation)
+install.packages("GPArotation")
+library(GPArotation)
+library(foreign)
 library(psych)
-# Đọc dữ liệu từ tệp Excel
-file_path <- "C:/Users/Admin/Downloads/Thesis Survey_June 17, 2024_11.12.sav"
-data <- read_sav(file_path)
-
-# Thống kê tần suất cho các cột quan trọng
-
-# Thống kê tần suất cho câu hỏi về độ tuổi
-age_frequency <- data %>%
-  count(Q1) %>%
-  rename(Age = Q1, Frequency = n)
-
-# Thống kê tần suất cho câu hỏi về giới tính
-gender_frequency <- data %>%
-  count(Q2) %>%
-  rename(Gender = Q2, Frequency = n)
-
-# Thống kê tần suất cho câu hỏi về tình trạng công việc
-work_status_frequency <- data %>%
-  count(Q3) %>%
-  rename(Work_Status = Q3, Frequency = n)
-
-# Thống kê tần suất cho câu hỏi về mức thu nhập hàng tháng
-income_frequency <- data %>%
-  count(Q5) %>%
-  rename(Income = Q5, Frequency = n)
-
-# Hiển thị kết quả
-print(age_frequency)
-print(gender_frequency)
-print(work_status_frequency)
-print(income_frequency)
-
-# Ví dụ thống kê tần số cho câu hỏi về tần suất sử dụng thanh toán QR-code
-qr_code_usage_frequency <- data %>%
-  count(Q7) %>%
-  rename(QR_Code_Usage = Q7, Frequency = n)
-
-# Hiển thị kết quả
-print(qr_code_usage_frequency)
-
-# Hàm để trích xuất nhãn từ cột và chuyển đổi thành yếu tố
-get_labels <- function(column) {
-  as_factor(column)
-}
-
-# Tính tần suất và gán nhãn cho các cột Q6_1 đến Q6_6
-compute_frequency_with_labels <- function(column) {
-  labeled_data <- get_labels(data[[column]])
-  frequency <- data.frame(table(labeled_data))
-  colnames(frequency) <- c("Label", "Frequency")
-  return(frequency)
-}
-
-# Tính tần suất cho từng câu hỏi
-Q6_1_frequency <- compute_frequency_with_labels("Q6_1")
-Q6_2_frequency <- compute_frequency_with_labels("Q6_2")
-Q6_3_frequency <- compute_frequency_with_labels("Q6_3")
-Q6_4_frequency <- compute_frequency_with_labels("Q6_4")
-Q6_5_frequency <- compute_frequency_with_labels("Q6_5")
-Q6_6_frequency <- compute_frequency_with_labels("Q6_6")
-
-# Hiển thị kết quả
-print(Q6_1_frequency)
-print(Q6_2_frequency)
-print(Q6_3_frequency)
-print(Q6_4_frequency)
-print(Q6_5_frequency)
-print(Q6_6_frequency)
-
-# Tính tổng số lượt chọn cho các câu hỏi từ Q6_1 đến Q6_6
-total_responses <- data %>%
-  summarise(
-    Q6_1_total = sum(Q6_1, na.rm = TRUE),
-    Q6_2_total = sum(Q6_2, na.rm = TRUE),
-    Q6_3_total = sum(Q6_3, na.rm = TRUE),
-    Q6_4_total = sum(Q6_4, na.rm = TRUE),
-    Q6_5_total = sum(Q6_5, na.rm = TRUE),
-    Q6_6_total = sum(Q6_6, na.rm = TRUE)
-  )
-
-# Hiển thị kết quả tổng số lượt chọn
-print(total_responses)
-
-# Hàm để kiểm tra và loại bỏ các biến không có phương sai
-remove_no_variance_vars <- function(vars) {
-  vars[, sapply(vars, function(x) var(x, na.rm = TRUE) != 0)]
-}
-
-# Chọn các biến cho từng thang đo và loại bỏ các biến không có phương sai
-
-# Perceived Usefulness (PU)
-PU_vars <- data %>%
-  select(Q8_1, Q8_2, Q8_3, Q8_4) %>%
-  remove_no_variance_vars()
-
-# Perceived Ease of Use (PEOU)
-PEOU_vars <- data %>%
-  select(Q9_1, Q9_2, Q9_3, Q9_4) %>%
-  remove_no_variance_vars()
-
-# Social Influence (SI)
-SI_vars <- data %>%
-  select(Q10_1, Q10_2, Q10_3) %>%
-  remove_no_variance_vars()
-
-# Perceived Trust (PT)
-PT_vars <- data %>%
-  select(Q11_1, Q11_2, Q11_3) %>%
-  remove_no_variance_vars()
-
-# Perceived Risk (PR)
-PR_vars <- data %>%
-  select(Q14_1, Q14_2, Q14_3, Q14_4) %>%
-  remove_no_variance_vars()
-
-# Intention to Use (IU)
-IU_vars <- data %>%
-  select(Q16_1, Q16_2) %>%
-  remove_no_variance_vars()
-
-# Tính Cronbach's Alpha cho từng thang đo
-compute_cronbach_alpha <- function(vars) {
-  if (ncol(vars) > 1) {
-    alpha(vars)$total$raw_alpha
-  } else {
-    return(NA) # Trả về NA nếu không đủ biến để tính Cronbach's Alpha
-  }
-}
-
-# Tính Cronbach's Alpha cho từng thang đo
-PU_alpha <- compute_cronbach_alpha(PU_vars)
-PEOU_alpha <- compute_cronbach_alpha(PEOU_vars)
-SI_alpha <- compute_cronbach_alpha(SI_vars)
-PT_alpha <- compute_cronbach_alpha(PT_vars)
-PR_alpha <- compute_cronbach_alpha(PR_vars)
-IU_alpha <- compute_cronbach_alpha(IU_vars)
-
-# Hiển thị kết quả
-alpha_results <- data.frame(
-  Scale = c("Perceived Usefulness", "Perceived Ease of Use", "Social Influence", "Perceived Trust", "Perceived Risk", "Intention to Use"),
-  Cronbach_Alpha = c(PU_alpha, PEOU_alpha, SI_alpha, PT_alpha, PR_alpha, IU_alpha)
+View(Survey_2309)
+library(readxl)
+Survey_2309 <- read_excel("C:/Users/Admin/Desktop/Survey 2309.xlsx")
+View(Survey_2309)
+correlation <- cor(Survey_2309)
+install.packages("dplyr")
+Survey_2309 %>% mutate_if(is.character,as.numeric)
+library(readxl)
+Survey_2309 <- read_excel("C:/Users/Admin/Desktop/Survey 2309.xlsx",
+col_types = c("numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric", "numeric", "numeric",
+"numeric"))
+View(Survey_2309)
+correlation <- cor(data.us.only)
+correlation <- cor(Survey_2309)
+eigen.values <- eigen(correlation)
+eigen.values <- eigen(correlation)
+rotated <- fa(correlation, nfactors = 6, rotate = "oblimin", fm = "ml")
+data <- subset(Survey_2309, complete.cases(Survey_2309))
+rotated <- fa(data, nfactors = 6, rotate = "oblimin", fm = "ml")
+print(rotated, sort = T, cut = .30)
+rotated <- fa(data, nfactors = 7, rotate = "oblimin", fm = "ml")
+print(rotated, sort = T, cut = .30)
+View(rotated)
+View(data)
+regression<- lm(formula=INT2~PU2+PEU4+PB2+PI2+SI2,data=Survey_2309)
+View(regression)
+print regression
+print(regression)
+summary (regression)
+results<- tidy(regression)
+install.packages("broom")
+results<- tidy(regression)
+install.packages("kableExtra")
+results<-tidy(regression)
+install.packages("gtsummary")
+library(broom)
+results<-tidy(regression)
+View(results)
+library(gtsummary)
+tbl_regression(regression)
+results<-tbl_regression(
+regression,
+label = NULL,
+exponentiate = FALSE,
+include = everything(),
+show_single_row = NULL,
+conf.level = NULL,
+intercept = NULL,
+estimate_fun = NULL,
+pvalue_fun = NULL,
+tidy_fun = NULL,
+add_estimate_to_reference_rows = FALSE,
+conf.int = NULL,
+...
 )
-
-print(alpha_results)
-
-# Chọn các biến độc lập từ dữ liệu
-independent_vars <- data %>%
-  select(Q8_1:Q8_4, Q9_1:Q9_4, Q10_1:Q10_3, Q11_1:Q11_3, Q14_1:Q14_4)
-
-# Loại bỏ các biến không có phương sai
-remove_no_variance_vars <- function(vars) {
-  vars[, sapply(vars, function(x) var(x, na.rm = TRUE) != 0)]
-}
-independent_vars <- remove_no_variance_vars(independent_vars)
-
-# Tính ma trận tương quan
-cor_matrix <- cor(independent_vars, use = "complete.obs")
-
-# Tính eigenvalues
-eigenvalues <- eigen(cor_matrix)$values
-
-# Xác định số yếu tố dựa trên eigenvalue > 1
-num_factors <- sum(eigenvalues > 1)
-
-# Thực hiện EFA với eigenvalue > 1, phép quay Varimax
-efa_results <- fa(independent_vars, nfactors = num_factors, rotate = "varimax", fm = "ml")
-
-# Lọc các hệ số tải chỉ hiển thị khi lớn hơn 0.5
-efa_loadings <- efa_results$loadings
-efa_loadings <- efa_loadings[apply(efa_loadings, 1, function(x) any(abs(x) > 0.5)),]
-
-# Đặt tên cho các nhân tố dựa trên số lượng nhân tố đã xác định
-factor_names <- c("Perceived.Usefulness", "Perceived.Ease.of.Use", "Social.Influence", "Perceived.Trust")
-
-# Hàm tính mean cho các nhân tố
-compute_factor_means <- function(data, loadings, factor_names, cutoff = 0.5) {
-  factor_means <- list()
-  for (i in 1:length(factor_names)) {
-    # Chọn các biến có hệ số tải trọng lớn hơn cutoff cho từng nhân tố
-    factor_vars <- rownames(loadings)[abs(loadings[, i]) > cutoff]
-    # Tính trung bình của các biến trong nhân tố đó
-    factor_means[[factor_names[i]]] <- rowMeans(data[factor_vars], na.rm = TRUE)
-  }
-  return(data.frame(factor_means))
-}
-
-# Tính mean cho từng nhân tố
-factor_means <- compute_factor_means(data, efa_loadings, factor_names)
-
-# Chọn các biến phụ thuộc từ dữ liệu
-dependent_vars <- data %>%
-  select(Q16_1, Q16_2)
-
-# Loại bỏ các biến không có phương sai
-dependent_vars <- remove_no_variance_vars(dependent_vars)
-
-# Tính mean cho biến phụ thuộc
-factor_means$Intention <- rowMeans(dependent_vars, na.rm = TRUE)
-
-# Chạy hồi quy tuyến tính với các nhân tố độc lập và biến phụ thuộc
-model <- lm(Intention ~ ., data = factor_means)
-
-# Hiển thị kết quả hồi quy
-summary(model)
-> library(haven)
-> library(dplyr)
-> library(tidyr)
-> library(psych)
-> 
-> 
-> # Đọc dữ liệu từ tệp Excel
-> file_path <- "C:/Users/Admin/Downloads/Thesis Survey_June 17, 2024_11.12.sav"
-> data <- read_sav(file_path)
-> 
-> # Thống kê tần suất cho các cột quan trọng
-> 
-> # Thống kê tần suất cho câu hỏi về độ tuổi
-> age_frequency <- data %>%
-+   count(Q1) %>%
-+   rename(Age = Q1, Frequency = n)
-> 
-> # Thống kê tần suất cho câu hỏi về giới tính
-> gender_frequency <- data %>%
-+   count(Q2) %>%
-+   rename(Gender = Q2, Frequency = n)
-> 
-> # Thống kê tần suất cho câu hỏi về tình trạng công việc
-> work_status_frequency <- data %>%
-+   count(Q3) %>%
-+   rename(Work_Status = Q3, Frequency = n)
-> 
-> # Thống kê tần suất cho câu hỏi về mức thu nhập hàng tháng
-> income_frequency <- data %>%
-+   count(Q5) %>%
-+   rename(Income = Q5, Frequency = n)
-> 
-> # Hiển thị kết quả
-> print(age_frequency)
-# A tibble: 4 × 2
-  Age        Frequency
-  <dbl+lbl>      <int>
-1  1 [17-20]        49
-2  2 [21-23]       142
-3  3 [24-27]        76
-4 NA                22
-> print(gender_frequency)
-# A tibble: 5 × 2
-  Gender                 Frequency
-  <dbl+lbl>                  <int>
-1  2                             5
-2  3 [Male]                     88
-3  4 [Female]                  173
-4  6 [Prefer not to say]         1
-5 NA                            22
-> print(work_status_frequency)
-# A tibble: 5 × 2
-  Work_Status        Frequency
-  <dbl+lbl>              <int>
-1  1 [Student]             136
-2  2 [Self-employed]        19
-3  3 [Employee]            107
-4  4 [Unemployed]            5
-5 NA                        22
-> print(income_frequency)
-# A tibble: 6 × 2
-  Income                   Frequency
-  <dbl+lbl>                    <int>
-1  1 [No income]                  55
-2  2 [Under 2 million VND]        19
-3  3 [2-5 million VND]            35
-4  4 [5-10 million VND]           62
-5  5 [Over 10 million VND]        96
-6 NA                              22
-> 
-> # Ví dụ thống kê tần số cho câu hỏi về tần suất sử dụng thanh toán QR-code
-> qr_code_usage_frequency <- data %>%
-+   count(Q7) %>%
-+   rename(QR_Code_Usage = Q7, Frequency = n)
-> 
-> # Hiển thị kết quả
-> print(qr_code_usage_frequency)
-# A tibble: 6 × 2
-  QR_Code_Usage                                Frequency
-  <dbl+lbl>                                        <int>
-1  1 [Never]                                           5
-2  2 [Rarely (1-2 times a month)]                     35
-3  3 [Sometimes (3-5 times a month)]                  31
-4  4 [Often (6-10 times a month)]                     63
-5  5 [Very often (More than 10 times a month)]       113
-6 NA                                                  42
-> 
-> # Hàm để trích xuất nhãn từ cột và chuyển đổi thành yếu tố
-> get_labels <- function(column) {
-+   as_factor(column)
-+ }
-> 
-> # Tính tần suất và gán nhãn cho các cột Q6_1 đến Q6_6
-> compute_frequency_with_labels <- function(column) {
-+   labeled_data <- get_labels(data[[column]])
-+   frequency <- data.frame(table(labeled_data))
-+   colnames(frequency) <- c("Label", "Frequency")
-+   return(frequency)
-+ }
-> 
-> # Tính tần suất cho từng câu hỏi
-> Q6_1_frequency <- compute_frequency_with_labels("Q6_1")
-> Q6_2_frequency <- compute_frequency_with_labels("Q6_2")
-> Q6_3_frequency <- compute_frequency_with_labels("Q6_3")
-> Q6_4_frequency <- compute_frequency_with_labels("Q6_4")
-> Q6_5_frequency <- compute_frequency_with_labels("Q6_5")
-> Q6_6_frequency <- compute_frequency_with_labels("Q6_6")
-> 
-> # Hiển thị kết quả
-> print(Q6_1_frequency)
-      Label Frequency
-1 Groceries       195
-> print(Q6_2_frequency)
-                 Label Frequency
-1 Clothing and apparel       209
-> print(Q6_3_frequency)
-       Label Frequency
-1 Dining out       206
-> print(Q6_4_frequency)
-                                              Label Frequency
-1 Utility bills (water bill, electricity bill, etc)       107
-> print(Q6_5_frequency)
-                                   Label Frequency
-1 Services (salons, transportation, etc)       162
-> print(Q6_6_frequency)
-  Label Frequency
-1 Other        16
-> 
-> # Tính tổng số lượt chọn cho các câu hỏi từ Q6_1 đến Q6_6
-> total_responses <- data %>%
-+   summarise(
-+     Q6_1_total = sum(Q6_1, na.rm = TRUE),
-+     Q6_2_total = sum(Q6_2, na.rm = TRUE),
-+     Q6_3_total = sum(Q6_3, na.rm = TRUE),
-+     Q6_4_total = sum(Q6_4, na.rm = TRUE),
-+     Q6_5_total = sum(Q6_5, na.rm = TRUE),
-+     Q6_6_total = sum(Q6_6, na.rm = TRUE)
-+   )
-> 
-> # Hiển thị kết quả tổng số lượt chọn
-> print(total_responses)
-# A tibble: 1 × 6
-  Q6_1_total Q6_2_total Q6_3_total Q6_4_total Q6_5_total Q6_6_total
-       <dbl>      <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
-1        195        209        206        107        162         16
-> 
-> 
-> 
-> 
-> 
-> # Hàm để kiểm tra và loại bỏ các biến không có phương sai
-> remove_no_variance_vars <- function(vars) {
-+   vars[, sapply(vars, function(x) var(x, na.rm = TRUE) != 0)]
-+ }
-> 
-> # Chọn các biến cho từng thang đo và loại bỏ các biến không có phương sai
-> 
-> # Perceived Usefulness (PU)
-> PU_vars <- data %>%
-+   select(Q8_1, Q8_2, Q8_3, Q8_4) %>%
-+   remove_no_variance_vars()
-> 
-> # Perceived Ease of Use (PEOU)
-> PEOU_vars <- data %>%
-+   select(Q9_1, Q9_2, Q9_3, Q9_4) %>%
-+   remove_no_variance_vars()
-> 
-> # Social Influence (SI)
-> SI_vars <- data %>%
-+   select(Q10_1, Q10_2, Q10_3) %>%
-+   remove_no_variance_vars()
-> 
-> # Perceived Trust (PT)
-> PT_vars <- data %>%
-+   select(Q11_1, Q11_2, Q11_3) %>%
-+   remove_no_variance_vars()
-> 
-> # Perceived Risk (PR)
-> PR_vars <- data %>%
-+   select(Q14_1, Q14_2, Q14_3, Q14_4) %>%
-+   remove_no_variance_vars()
-> 
-> # Intention to Use (IU)
-> IU_vars <- data %>%
-+   select(Q16_1, Q16_2) %>%
-+   remove_no_variance_vars()
-> 
-> # Tính Cronbach's Alpha cho từng thang đo
-> compute_cronbach_alpha <- function(vars) {
-+   if (ncol(vars) > 1) {
-+     alpha(vars)$total$raw_alpha
-+   } else {
-+     return(NA) # Trả về NA nếu không đủ biến để tính Cronbach's Alpha
-+   }
-+ }
-> 
-> # Tính Cronbach's Alpha cho từng thang đo
-> PU_alpha <- compute_cronbach_alpha(PU_vars)
-> PEOU_alpha <- compute_cronbach_alpha(PEOU_vars)
-> SI_alpha <- compute_cronbach_alpha(SI_vars)
-> PT_alpha <- compute_cronbach_alpha(PT_vars)
-> PR_alpha <- compute_cronbach_alpha(PR_vars)
-> IU_alpha <- compute_cronbach_alpha(IU_vars)
-> 
-> # Hiển thị kết quả
-> alpha_results <- data.frame(
-+   Scale = c("Perceived Usefulness", "Perceived Ease of Use", "Social Influence", "Perceived Trust", "Perceived Risk", "Intention to Use"),
-+   Cronbach_Alpha = c(PU_alpha, PEOU_alpha, SI_alpha, PT_alpha, PR_alpha, IU_alpha)
-+ )
-> 
-> print(alpha_results)
-                  Scale Cronbach_Alpha
-1  Perceived Usefulness      0.8685944
-2 Perceived Ease of Use      0.9107794
-3      Social Influence      0.6875493
-4       Perceived Trust      0.8704266
-5        Perceived Risk      0.8958865
-6      Intention to Use      0.8456569
-> 
-> # Chọn các biến độc lập từ dữ liệu
-> independent_vars <- data %>%
-+   select(Q8_1:Q8_4, Q9_1:Q9_4, Q10_1:Q10_3, Q11_1:Q11_3, Q14_1:Q14_4)
-> 
-> # Loại bỏ các biến không có phương sai
-> remove_no_variance_vars <- function(vars) {
-+   vars[, sapply(vars, function(x) var(x, na.rm = TRUE) != 0)]
-+ }
-> independent_vars <- remove_no_variance_vars(independent_vars)
-> 
-> # Tính ma trận tương quan
-> cor_matrix <- cor(independent_vars, use = "complete.obs")
-> 
-> # Tính eigenvalues
-> eigenvalues <- eigen(cor_matrix)$values
-> 
-> # Xác định số yếu tố dựa trên eigenvalue > 1
-> num_factors <- sum(eigenvalues > 1)
-> 
-> # Thực hiện EFA với eigenvalue > 1, phép quay Varimax
-> efa_results <- fa(independent_vars, nfactors = num_factors, rotate = "varimax", fm = "ml")
-> 
-> # Lọc các hệ số tải chỉ hiển thị khi lớn hơn 0.5
-> efa_loadings <- efa_results$loadings
-> efa_loadings <- efa_loadings[apply(efa_loadings, 1, function(x) any(abs(x) > 0.5)),]
-> 
-> # Đặt tên cho các nhân tố dựa trên số lượng nhân tố đã xác định
-> factor_names <- c("Perceived.Usefulness", "Perceived.Ease.of.Use", "Social.Influence", "Perceived.Trust")
-> 
-> # Hàm tính mean cho các nhân tố
-> compute_factor_means <- function(data, loadings, factor_names, cutoff = 0.5) {
-+   factor_means <- list()
-+   for (i in 1:length(factor_names)) {
-+     # Chọn các biến có hệ số tải trọng lớn hơn cutoff cho từng nhân tố
-+     factor_vars <- rownames(loadings)[abs(loadings[, i]) > cutoff]
-+     # Tính trung bình của các biến trong nhân tố đó
-+     factor_means[[factor_names[i]]] <- rowMeans(data[factor_vars], na.rm = TRUE)
-+   }
-+   return(data.frame(factor_means))
-+ }
-> 
-> # Tính mean cho từng nhân tố
-> factor_means <- compute_factor_means(data, efa_loadings, factor_names)
-> 
-> # Chọn các biến phụ thuộc từ dữ liệu
-> dependent_vars <- data %>%
-+   select(Q16_1, Q16_2)
-> 
-> # Loại bỏ các biến không có phương sai
-> dependent_vars <- remove_no_variance_vars(dependent_vars)
-> 
-> # Tính mean cho biến phụ thuộc
-> factor_means$Intention <- rowMeans(dependent_vars, na.rm = TRUE)
-> 
-> # Chạy hồi quy tuyến tính với các nhân tố độc lập và biến phụ thuộc
-> model <- lm(Intention ~ ., data = factor_means)
-> 
-> # Hiển thị kết quả hồi quy
-> summary(model)
-
-Call:
-lm(formula = Intention ~ ., data = factor_means)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--2.68851 -0.42710  0.00525  0.41296  2.89454 
-
-Coefficients:
-                      Estimate Std. Error t value Pr(>|t|)    
-(Intercept)           0.804141   0.272866   2.947 0.003522 ** 
-Perceived.Usefulness  0.405692   0.069283   5.856 1.54e-08 ***
-Perceived.Ease.of.Use 0.174626   0.052049   3.355 0.000921 ***
-Social.Influence      0.236427   0.063475   3.725 0.000243 ***
-Perceived.Trust       0.001509   0.043844   0.034 0.972574    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.6875 on 242 degrees of freedom
-  (42 observations deleted due to missingness)
-Multiple R-squared:  0.3802,	Adjusted R-squared:   0.37 
-F-statistic: 37.12 on 4 and 242 DF,  p-value: < 2.2e-16
-
